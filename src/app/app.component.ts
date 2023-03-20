@@ -6,13 +6,19 @@ import * as _ from 'lodash';
 import { User } from './interface/user';
 import { Comment } from './interface/comment';
 
+interface UserCommentMap {
+  user: User;
+  comments: Array<Comment>;
+  children?: UserCommentMap[];
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  userMap = new Map<number, { user: User; comments: Array<Comment> }>();
+  userMap = new Map<number, UserCommentMap>();
 
   constructor(
     private userService: UsersService,
@@ -41,6 +47,9 @@ export class AppComponent implements OnInit {
           comments: commentGroup[user.id] ? commentGroup[user.id] : [],
         });
       });
+
+      // console.log(Array.from(this.userMap.values()));
+      // console.log(commentGroup);
     });
   }
 }
