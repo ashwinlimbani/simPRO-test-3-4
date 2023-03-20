@@ -5,6 +5,7 @@ import { UsersService } from './service/users.service';
 import * as _ from 'lodash';
 import { User } from './interface/user';
 import { Comment } from './interface/comment';
+import { LoadingSpinnerService } from './shared/loading-spinner/loading-spinner.service';
 
 interface UserCommentMap {
   user: User;
@@ -22,7 +23,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private userService: UsersService,
-    private commentsService: CommentsService
+    private commentsService: CommentsService,
+    private spinnerService: LoadingSpinnerService
   ) {}
 
   ngOnInit(): void {
@@ -30,6 +32,7 @@ export class AppComponent implements OnInit {
   }
 
   mapUsersAndComments() {
+    this.spinnerService.showSpinner();
     forkJoin([
       this.userService.getUsers(),
       this.commentsService.getComments(),
@@ -47,7 +50,7 @@ export class AppComponent implements OnInit {
           comments: commentGroup[user.id] ? commentGroup[user.id] : [],
         });
       });
-
+      this.spinnerService.closeSpinner();
       // console.log(Array.from(this.userMap.values()));
       // console.log(commentGroup);
     });
