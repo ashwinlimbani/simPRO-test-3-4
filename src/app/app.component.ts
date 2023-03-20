@@ -3,6 +3,8 @@ import { forkJoin } from 'rxjs';
 import { CommentsService } from './service/comments.service';
 import { UsersService } from './service/users.service';
 import * as _ from 'lodash';
+import { User } from './interface/user';
+import { Comment } from './interface/comment';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +12,7 @@ import * as _ from 'lodash';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  title = 'angular-test';
+  userMap = new Map<number, { user: User; comments: Array<Comment> }>();
 
   constructor(
     private userService: UsersService,
@@ -32,11 +34,13 @@ export class AppComponent implements OnInit {
         .groupBy((item) => {
           return [item.user.id];
         })
-        // .map((items, name) => {
-        //   return items;
-        // })
         .value();
-      console.log(commentGroup);
+      users.forEach((user) => {
+        this.userMap.set(user.id, {
+          user: user,
+          comments: commentGroup[user.id] ? commentGroup[user.id] : [],
+        });
+      });
     });
   }
 }
