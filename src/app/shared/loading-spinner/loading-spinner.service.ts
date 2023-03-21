@@ -12,7 +12,6 @@ export class LoadingSpinnerService {
   constructor(private dialog: MatDialog) {}
 
   showSpinner() {
-    // this.closeSpinner();
     if (++this.totalRequests === 1) {
       this.spinnerDialog = this.dialog.open(LoadingSpinnerComponent, {
         panelClass: 'transparent',
