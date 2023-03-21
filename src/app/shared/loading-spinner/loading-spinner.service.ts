@@ -7,17 +7,25 @@ import { LoadingSpinnerComponent } from './loading-spinner.component';
 })
 export class LoadingSpinnerService {
   spinnerDialog!: MatDialogRef<LoadingSpinnerComponent>;
+  private totalRequests = 0;
+
   constructor(private dialog: MatDialog) {}
 
   showSpinner() {
-    this.closeSpinner();
-    this.spinnerDialog = this.dialog.open(LoadingSpinnerComponent, {
-      panelClass: 'transparent',
-      disableClose: true,
-    });
+    // this.closeSpinner();
+    if (++this.totalRequests === 1) {
+      this.spinnerDialog = this.dialog.open(LoadingSpinnerComponent, {
+        panelClass: 'transparent',
+        disableClose: true,
+      });
+    }
   }
 
   closeSpinner() {
-    if (this.spinnerDialog) this.spinnerDialog.close();
+    if (
+      (this.totalRequests == 0 || --this.totalRequests == 0) &&
+      this.spinnerDialog
+    )
+      this.spinnerDialog.close();
   }
 }

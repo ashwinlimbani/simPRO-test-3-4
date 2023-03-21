@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { finalize, forkJoin, delay } from 'rxjs';
 import { CommentsService } from './service/comments.service';
 import { UsersService } from './service/users.service';
 import * as _ from 'lodash';
@@ -20,7 +20,6 @@ interface UserCommentMap {
 })
 export class AppComponent implements OnInit {
   userMap = new Map<number, UserCommentMap>();
-
   constructor(
     private userService: UsersService,
     private commentsService: CommentsService,
@@ -33,26 +32,24 @@ export class AppComponent implements OnInit {
 
   mapUsersAndComments() {
     this.spinnerService.showSpinner();
-    forkJoin([
-      this.userService.getUsers(),
-      this.commentsService.getComments(),
-    ]).subscribe((res) => {
-      const [users, comments] = res;
+    forkJoin([this.userService.getUsers(), this.commentsService.getComments()])
+      .pipe(finalize(() => this.spinnerService.closeSpinner()))
+      .subscribe((res) => {
+        const [users, comments] = res;
 
-      const commentGroup = _(comments)
-        .groupBy((item) => {
-          return [item.user.id];
-        })
-        .value();
-      users.forEach((user) => {
-        this.userMap.set(user.id, {
-          user: user,
-          comments: commentGroup[user.id] ? commentGroup[user.id] : [],
+        const commentGroup = _(comments)
+          .groupBy((item) => {
+            return [item.user.id];
+          })
+          .value();
+        users.forEach((user) => {
+          this.userMap.set(user.id, {
+            user: user,
+            comments: commentGroup[user.id] ? commentGroup[user.id] : [],
+          });
         });
+        // console.log(Array.from(this.userMap.values()));
+        // console.log(commentGroup);
       });
-      this.spinnerService.closeSpinner();
-      // console.log(Array.from(this.userMap.values()));
-      // console.log(commentGroup);
-    });
   }
 }
